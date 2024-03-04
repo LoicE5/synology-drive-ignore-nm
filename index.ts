@@ -27,12 +27,12 @@ interface SynologyFilter {
 const banDirName = 'node_modules'
 const directory = `${os.homedir()}/Library/Application Support/SynologyDrive/SynologyDrive.app/Contents/Resources/conf`
 const paths = {
-    filter: `${directory}/blacklist.filter`,
+    blacklist: `${directory}/blacklist.filter`,
     filterV450: `${directory}/filter-v4150`
 }
 
 async function main() {
-    await editConfigFile(paths.filter)
+    await editConfigFile(paths.blacklist)
     await editConfigFile(paths.filterV450)
 }
 
@@ -72,7 +72,7 @@ async function editConfigFile(path: string): Promise<void> {
         config.Common!.black_name += `, "${banDirName}"`
 
     // We save the file
-    const updatedConfig = ini.stringify(config)
+    const updatedConfig = ini.stringify(config)    
     await Bun.write(path, updatedConfig)
 
     console.info(`${banDirName} have been successfully banned from Synology Drive.`)
