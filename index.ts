@@ -1,32 +1,33 @@
+import type { BunFile } from 'bun'
 import ini from 'ini'
 import os from 'node:os'
 
 interface SynologyFilter {
     Version: {
-      major: string;
-      minor: string;
-    };
-    Common: {
-      black_char: string;
-      black_name: string;
-      max_length: string;
-      max_path: string;
-    };
-    File: {
-      black_name: string;
-      black_prefix: string;
-      max_size: string;
-    };
-    Directory: {
-      black_name: string;
-    };
-    EA: {};
+      major: string
+      minor: string
+    }
+    Common?: {
+      black_char: string
+      black_name: string
+      max_length: string
+      max_path: string
+    }
+    File?: {
+      black_name: string
+      black_prefix: string
+      max_size: string
+    }
+    Directory?: {
+      black_name: string
+    }
+    EA?: {}
 }
 
 const banDirName = 'node_modules'
 const directory = `${os.homedir()}/Library/Application Support/SynologyDrive/SynologyDrive.app/Contents/Resources/conf`
 const paths = {
-    filter: `${directory}/filter`,
+    filter: `${directory}/blacklist.filter`,
     filterV450: `${directory}/filter-v4150`
 }
 
@@ -39,17 +40,38 @@ async function editConfigFile(path: string): Promise<void> {
 
     console.info(`Editing file : ${path}`)
 
-    const file = Bun.file(path)
-    const text = await file.text()
+    // Open the file
+    const file: BunFile = Bun.file(path)
+    const text: string = await file.text()
 
-    const config = ini.parse(text) as SynologyFilter
+    // Get the file as an object
+    const config = { ...ini.parse(text) } as SynologyFilter
 
-    if (config.Directory.black_name.includes(banDirName))
-        return console.info(`The directory ${banDirName} is already ignored by Synology Drive.`)
+    // Create some conditions for better code lisibility
+    const hasDirectoryKey: boolean = config.hasOwnProperty('Directory')
+    const hasCommonKey: boolean = config.hasOwnProperty('Common')
+    const hasNodeModulesInDirectory: boolean = hasDirectoryKey && config.Directory!.black_name.includes(banDirName)
+    const hasNodeModulesInCommon: boolean = hasCommonKey && config.Common!.black_name.includes(banDirName)
 
-    config.Directory.black_name += `, \"${banDirName}\"`
-    config.Common.black_name += `, \"${banDirName}\"`
+    if (
+        (hasNodeModulesInDirectory && !hasCommonKey) ||
+        (hasNodeModulesInDirectory && hasNodeModulesInCommon)
+    )
+        return console.info(`The directory ${banDirName} is already banned. No further action is needed.`)
 
+    // If there is no Directory key, we create one and add node_modules in the blacklist, otherwise and if not already present, we add node_modules in Directory's blacklist
+    if (!hasDirectoryKey)
+        config.Directory = {
+            black_name: `"${banDirName}"`
+        }
+    else if (!hasNodeModulesInDirectory)
+        config.Directory!.black_name += `, "${banDirName}"`        
+
+    // If the Common key exists in the file, we add node_modules in the blacklist
+    if (hasCommonKey)
+        config.Common!.black_name += `, "${banDirName}"`
+
+    // We save the file
     const updatedConfig = ini.stringify(config)
     await Bun.write(path, updatedConfig)
 
