@@ -9,7 +9,7 @@
     "typescript": "^5.0.0"
   },
   "dependencies": {
-    "@types/ini": "^4.1.0",
-    "ini": "^4.1.1"
+    "@loice5/dangerous-ini": "^1.0.1",
+    "@types/ini": "^4.1.0"
   }
 }

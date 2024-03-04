@@ -1,5 +1,6 @@
+// @ts-ignore
+import ini from '@loice5/dangerous-ini'
 import type { BunFile } from 'bun'
-import ini from 'ini'
 import os from 'node:os'
 
 interface SynologyFilter {
@@ -72,7 +73,7 @@ async function editConfigFile(path: string): Promise<void> {
         config.Common!.black_name += `, "${banDirName}"`
 
     // We save the file
-    const updatedConfig = ini.stringify(config)    
+    const updatedConfig = ini.stringify(config)
     await Bun.write(path, updatedConfig)
 
     console.info(`${banDirName} have been successfully banned from Synology Drive.`)
