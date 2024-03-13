@@ -45,6 +45,8 @@ async function editConfigFile(path: string): Promise<void> {
     const file: BunFile = Bun.file(path)
     const text: string = await file.text()
 
+    await backupFile(file)
+
     // Get the file as an object
     const config = { ...ini.parse(text) } as SynologyFilter
 
@@ -77,6 +79,15 @@ async function editConfigFile(path: string): Promise<void> {
     await Bun.write(path, updatedConfig)
 
     console.info(`${banDirName} have been successfully banned from Synology Drive.`)
+}
+
+async function backupFile(file: BunFile): Promise<void> {
+    const fileName = file.name?.split('/').at(-1)
+    const path = `${os.homedir()}/Desktop/${fileName}`
+
+    await Bun.write(path, file)
+    
+    console.log('File backed-up successfully.')
 }
 
 main()
