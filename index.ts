@@ -48,7 +48,7 @@ async function editConfigFile(path: string): Promise<void> {
     await backupFile(file)
 
     // Get the file as an object
-    const config = { ...ini.parse(text) } as SynologyFilter
+    const config = Object.assign({}, ini.parse(text)) as SynologyFilter
 
     // Create some conditions for better code lisibility
     const hasDirectoryKey: boolean = config.hasOwnProperty('Directory')
@@ -68,7 +68,7 @@ async function editConfigFile(path: string): Promise<void> {
             black_name: `"${banDirName}"`
         }
     else if (!hasNodeModulesInDirectory)
-        config.Directory!.black_name += `, "${banDirName}"`        
+        config.Directory!.black_name += `, "${banDirName}"`
 
     // If the Common key exists in the file, we add node_modules in the blacklist
     if (hasCommonKey)
