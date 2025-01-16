@@ -25,7 +25,10 @@ interface SynologyFilter {
     EA?: {}
 }
 
-const banDirName = 'node_modules'
+const args = process.argv.slice(2)
+const ignoreArg = args.find(arg => arg.startsWith('--ignore='))
+const banDirNames = ['node_modules', ...(ignoreArg?.split('=')[1].split(',') ?? [])]
+
 const directory = `${os.homedir()}/Library/Application Support/SynologyDrive/SynologyDrive.app/Contents/Resources/conf`
 const paths = {
     blacklist: `${directory}/blacklist.filter`,
@@ -53,32 +56,42 @@ async function editConfigFile(path: string): Promise<void> {
     // Create some conditions for better code lisibility
     const hasDirectoryKey: boolean = config.hasOwnProperty('Directory')
     const hasCommonKey: boolean = config.hasOwnProperty('Common')
-    const hasNodeModulesInDirectory: boolean = hasDirectoryKey && config.Directory!.black_name.includes(banDirName)
-    const hasNodeModulesInCommon: boolean = hasCommonKey && config.Common!.black_name.includes(banDirName)
+    const hasNodeModulesInDirectory: boolean = hasDirectoryKey && banDirNames.every(dir => config.Directory!.black_name.includes(dir))
+    const hasNodeModulesInCommon: boolean = hasCommonKey && banDirNames.every(dir => config.Common!.black_name.includes(dir))
 
     if (
         (hasNodeModulesInDirectory && !hasCommonKey) ||
         (hasNodeModulesInDirectory && hasNodeModulesInCommon)
     )
-        return console.info(`The directory ${banDirName} is already banned. No further action is needed.`)
+        return console.info(`The directories ${banDirNames.join(', ')} are already banned. No further action is needed.`)
 
-    // If there is no Directory key, we create one and add node_modules in the blacklist, otherwise and if not already present, we add node_modules in Directory's blacklist
+    // If there is no Directory key, we create one and add directories in the blacklist, otherwise and if not already present, we add directories in Directory's blacklist
     if (!hasDirectoryKey)
         config.Directory = {
-            black_name: `"${banDirName}"`
+            black_name: banDirNames.map(dir => `"${dir}"`).join(', ')
         }
-    else if (!hasNodeModulesInDirectory)
-        config.Directory!.black_name += `, "${banDirName}"`
+    else {
+        banDirNames.forEach(dir => {
+            if (!config.Directory!.black_name.includes(dir)) {
+                config.Directory!.black_name += `, "${dir}"`
+            }
+        })
+    }
 
-    // If the Common key exists in the file, we add node_modules in the blacklist
-    if (hasCommonKey)
-        config.Common!.black_name += `, "${banDirName}"`
+    // If the Common key exists in the file, we add directories in the blacklist
+    if (hasCommonKey) {
+        banDirNames.forEach(dir => {
+            if (!config.Common!.black_name.includes(dir)) {
+                config.Common!.black_name += `, "${dir}"`
+            }
+        })
+    }
 
     // We save the file
     const updatedConfig = ini.stringify(config)
     await Bun.write(path, updatedConfig)
 
-    console.info(`${banDirName} have been successfully banned from Synology Drive.`)
+    console.info(`${banDirNames.join(', ')} have been successfully banned from Synology Drive.`)
 }
 
 async function backupFile(file: BunFile): Promise<void> {
@@ -91,3 +104,5 @@ async function backupFile(file: BunFile): Promise<void> {
 }
 
 main()
+    .then(() => console.log('Operation completed successfully.'))
+    .catch(err => console.error('An error occurred:', err))
