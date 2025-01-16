@@ -15,6 +15,16 @@ Look no further, this code fixes that!
 5. Run the index script : `bun index.ts`
 6. Start Synology Drive again and enjoy
 
+## Ignoring additional directories
+
+By default, the script will ignore `node_modules` directory only. If you want to ignore additional directories, you can pass them as a command line argument:
+
+```sh
+bun index.ts --ignore=dist,build,customDir
+```
+
+This will always include `node_modules` and also will add `dist`, `build`, and `customDir` to the list of directories to ignore.
+
 # What does it do ?
 
 The script goes in the following directory : `~/Library/Application Support/SynologyDrive/SynologyDrive.app/Contents/Resources/conf`
