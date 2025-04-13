@@ -89,7 +89,12 @@ async function editConfigFile(path: string): Promise<void> {
 
     // We save the file
     const updatedConfig = ini.stringify(config)
-    await Bun.write(path, updatedConfig)
+    try {
+        await Bun.write(path, updatedConfig)
+    } catch (error: unknown) {
+        const fs = await import('fs')
+        fs.writeFileSync(path, updatedConfig)
+    }
 
     console.info(`${banDirNames.join(', ')} have been successfully banned from Synology Drive.`)
 }
