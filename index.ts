@@ -89,7 +89,13 @@ async function editConfigFile(path: string): Promise<void> {
 
     // We save the file
     const updatedConfig = ini.stringify(config)
-    await Bun.write(path, updatedConfig)
+    try {
+        await Bun.write(path, updatedConfig)
+    } catch (error: unknown) {
+        const fs = await import('fs')
+        fs.writeFileSync(path, updatedConfig)
+        console.info(`🧐 For some reason, Bun.write() fails on your device. We've switched it to fs.writeFileSync() for you! If you see this, the edits have succeeded.`)
+    }
 
     console.info(`${banDirNames.join(', ')} have been successfully banned from Synology Drive.`)
 }
@@ -100,9 +106,9 @@ async function backupFile(file: BunFile): Promise<void> {
 
     await Bun.write(path, file)
     
-    console.log('File backed-up successfully.')
+    console.info('File backed-up successfully.')
 }
 
 main()
-    .then(() => console.log('Operation completed successfully.'))
+    .then(() => console.info('Operation completed successfully.'))
     .catch(err => console.error('An error occurred:', err))
