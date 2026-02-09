@@ -25,6 +25,12 @@ bun index.ts --ignore=dist,build,customDir
 
 This will always include `node_modules` and also will add `dist`, `build`, and `customDir` to the list of directories to ignore.
 
+## Permissions
+You might encounter an error running this script claiming that you are not authorized to edit some files. It's normal, MacOS will restrict access to other apps' files by default. You need to explicitely allow it in System Preferences -> Security & Privacy -> Apps Management -> *\<Your terminal or IDE\>*.
+> Don't forget to remove the permission once the process is done. Safety first!
+
+![Screenshot of System preferences](images/preferences_screenshot.png)
+
 # What does it do ?
 
 The script goes in the following directory : `~/Library/Application Support/SynologyDrive/SynologyDrive.app/Contents/Resources/conf`
@@ -45,7 +51,7 @@ Some examples :
 
 ### blacklist.filter
 
-```
+```ini
 [Version]
 major=1
 minor=1
@@ -60,7 +66,7 @@ black_name="node_modules"
 
 ### filter-v4150
 
-```
+```ini
 [Version]
 major=1
 minor=1

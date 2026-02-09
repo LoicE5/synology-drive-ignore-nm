@@ -1,4 +1,4 @@
-// @ts-ignore
+// @ts-expect-error
 import ini from '@loice5/dangerous-ini'
 import type { BunFile } from 'bun'
 import os from 'node:os'
@@ -51,7 +51,7 @@ async function editConfigFile(path: string): Promise<void> {
     await backupFile(file)
 
     // Get the file as an object
-    const config = Object.assign({}, ini.parse(text)) as SynologyFilter
+    const config = Object.assign({}, ini.parse(text)) satisfies SynologyFilter
 
     // Create some conditions for better code lisibility
     const hasDirectoryKey: boolean = config.hasOwnProperty('Directory')
@@ -102,11 +102,13 @@ async function editConfigFile(path: string): Promise<void> {
 
 async function backupFile(file: BunFile): Promise<void> {
     const fileName = file.name?.split('/').at(-1)
-    const path = `${os.homedir()}/Desktop/${fileName}`
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-')
+    const backupFileName = `${fileName}.${timestamp}.backup`
+    const path = `${import.meta.dir}/backups/${backupFileName}`
 
     await Bun.write(path, file)
-    
-    console.info('File backed-up successfully.')
+
+    console.info(`File backed-up successfully to ${backupFileName}`)
 }
 
 main()
