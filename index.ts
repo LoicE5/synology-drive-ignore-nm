@@ -104,7 +104,7 @@ async function backupFile(file: BunFile): Promise<void> {
     const fileName = file.name?.split('/').at(-1)
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-')
     const backupFileName = `${fileName}.${timestamp}.backup`
-    const path = `${import.meta.dir}/backups/${backupFileName}`
+    const path = `${process.cwd()}/backups/${backupFileName}`
 
     await Bun.write(path, file)
 

@@ -12,8 +12,32 @@ Look no further, this code fixes that!
 2. Close Synology Drive
 3. Install [Bun](https://bun.sh/) : `curl -fsSL https://bun.sh/install | bash`
 4. Install the dependencies : `bun i`
-5. Run the index script : `bun index.ts`
+5. Run the index script : `bun start`
 6. Start Synology Drive again and enjoy
+
+## Download a binary
+
+Pre-built binaries for Apple Silicon and Intel Macs are available in the [Releases](../../releases) section of this repository. Download the one matching your machine and skip straight to the alias step below.
+
+## Build a binary
+Alternatively, you can build a standalone binary that doesn't require Bun to be installed on the target machine:
+
+```sh
+bun run build
+```
+
+This produces two executables in `dist/`:
+- `synology-drive-ignore-nm-arm64` for Apple Silicon Macs (M1/M2/M3...)
+- `synology-drive-ignore-nm-x64` for Intel Macs
+
+To use it from anywhere, add an alias to your shell config pointing to the right binary for your machine:
+
+```sh
+# ~/.bashrc or ~/.zshrc
+alias synology-drive-ignore-nm="/path/to/dist/synology-drive-ignore-nm-arm64" # or x64
+```
+
+Then reload your shell (`source ~/.zshrc` or `source ~/.bashrc`) and run `synology-drive-ignore-nm` anywhere.
 
 ## Ignoring additional directories
 

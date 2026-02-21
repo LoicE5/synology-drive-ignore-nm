@@ -1,7 +1,15 @@
 {
   "name": "synology-drive-ignore-nm",
+  "version": "1.0.0",
   "module": "index.ts",
   "type": "module",
+  "scripts": {
+    "start": "bun run index.ts",
+    "build:arm64": "bun build index.ts --compile --target=bun-darwin-arm64 --outfile dist/synology-drive-ignore-nm-arm64",
+    "build:x64": "bun build index.ts --compile --target=bun-darwin-x64 --outfile dist/synology-drive-ignore-nm-x64",
+    "cleanup": "rm -f ./.*-*.bun-build",
+    "build": "bun run build:arm64 && bun run build:x64 && bun run cleanup"
+  },
   "devDependencies": {
     "@types/bun": "latest"
   },
