@@ -2,6 +2,10 @@
   "name": "synology-drive-ignore-nm",
   "module": "index.ts",
   "type": "module",
+  "scripts": {
+    "start": "bun run index.ts",
+    "build": "bun build index.ts --compile --outfile dist/synology-drive-ignore-nm && rm -f ./.*-*.bun-build"
+  },
   "devDependencies": {
     "@types/bun": "latest"
   },

@@ -177,3 +177,7 @@ dist
 # Backup files
 backups/*
 !backups/.gitkeep
+
+# Bun builds
+.*-*.bun-build
+dist/
