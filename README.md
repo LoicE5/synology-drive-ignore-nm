@@ -15,6 +15,10 @@ Look no further, this code fixes that!
 5. Run the index script : `bun start`
 6. Start Synology Drive again and enjoy
 
+## Download a binary
+
+Pre-built binaries for Apple Silicon and Intel Macs are available in the [Releases](../../releases) section of this repository. Download the one matching your machine and skip straight to the alias step below.
+
 ## Build a binary
 Alternatively, you can build a standalone binary that doesn't require Bun to be installed on the target machine:
 
