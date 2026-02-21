@@ -12,7 +12,7 @@ Look no further, this code fixes that!
 2. Close Synology Drive
 3. Install [Bun](https://bun.sh/) : `curl -fsSL https://bun.sh/install | bash`
 4. Install the dependencies : `bun i`
-5. Run the index script : `bun run start`
+5. Run the index script : `bun start`
 6. Start Synology Drive again and enjoy
 
 ## Build a binary
@@ -22,11 +22,15 @@ Alternatively, you can build a standalone binary that doesn't require Bun to be 
 bun run build
 ```
 
-This produces an executable at `dist/synology-drive-ignore-nm`. To use it from anywhere, add an alias to your shell config:
+This produces two executables in `dist/`:
+- `synology-drive-ignore-nm-arm64` for Apple Silicon Macs (M1/M2/M3...)
+- `synology-drive-ignore-nm-x64` for Intel Macs
+
+To use it from anywhere, add an alias to your shell config pointing to the right binary for your machine:
 
 ```sh
 # ~/.bashrc or ~/.zshrc
-alias synology-drive-ignore-nm="/path/to/dist/synology-drive-ignore-nm"
+alias synology-drive-ignore-nm="/path/to/dist/synology-drive-ignore-nm-arm64" # or x64
 ```
 
 Then reload your shell (`source ~/.zshrc` or `source ~/.bashrc`) and run `synology-drive-ignore-nm` anywhere.
