@@ -54,10 +54,10 @@ async function editConfigFile(path: string): Promise<void> {
     const config = Object.assign({}, ini.parse(text)) satisfies SynologyFilter
 
     // Create some conditions for better code lisibility
-    const hasDirectoryKey: boolean = config.hasOwnProperty('Directory')
-    const hasCommonKey: boolean = config.hasOwnProperty('Common')
+    const hasDirectoryKey: boolean           = config.hasOwnProperty('Directory')
+    const hasCommonKey: boolean              = config.hasOwnProperty('Common')
     const hasNodeModulesInDirectory: boolean = hasDirectoryKey && banDirNames.every(dir => config.Directory!.black_name.includes(dir))
-    const hasNodeModulesInCommon: boolean = hasCommonKey && banDirNames.every(dir => config.Common!.black_name.includes(dir))
+    const hasNodeModulesInCommon: boolean    = hasCommonKey && banDirNames.every(dir => config.Common!.black_name.includes(dir))
 
     if (
         (hasNodeModulesInDirectory && !hasCommonKey) ||
