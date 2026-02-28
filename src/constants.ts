@@ -9,8 +9,7 @@ export const defaultList = ['node_modules']
 export const hasEnv      = envIgnore !== undefined
 export const hasCLI      = ignoreArg !== undefined
 export const envList     = hasEnv ? parseIgnoreEnv(envIgnore!) : []
-export const cliList     = hasCLI ? ignoreArg!.split('=')[1].split(',').map(s => s.trim()) : []
-
+export const cliList     = hasCLI ? ignoreArg!.split('=').at(1)!.split(',').map(s => s.trim()) : []
 export const banDirNames = hasCLI ? [...defaultList, ...envList, ...cliList]
                                   : (hasEnv ? envList : defaultList)
 
