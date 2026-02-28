@@ -1,14 +1,16 @@
 {
   "name": "synology-drive-ignore-nm",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "module": "index.ts",
   "type": "module",
   "scripts": {
-    "start": "bun run index.ts",
-    "build:arm64": "bun build index.ts --compile --target=bun-darwin-arm64 --outfile dist/synology-drive-ignore-nm-arm64",
-    "build:x64": "bun build index.ts --compile --target=bun-darwin-x64 --outfile dist/synology-drive-ignore-nm-x64",
+    "start": "bun run src/index.ts",
+    "env:init": "cp -n .env.example .env",
+    "build": "bun run src/build.ts && bun run cleanup",
+    "build:arm64": "bun run src/build.ts arm64 && bun run cleanup",
+    "build:x64": "bun run src/build.ts x64 && bun run cleanup",
     "cleanup": "rm -f ./.*-*.bun-build",
-    "build": "bun run build:arm64 && bun run build:x64 && bun run cleanup"
+    "cleanup:backups": "find ./backups -type f ! -name '.gitkeep' -delete"
   },
   "devDependencies": {
     "@types/bun": "latest"

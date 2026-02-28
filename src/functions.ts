@@ -1,46 +1,33 @@
 // @ts-expect-error
 import ini from '@loice5/dangerous-ini'
+import type { SynologyFilter } from './interfaces'
+import { banDirNames } from './constants'
 import type { BunFile } from 'bun'
-import os from 'node:os'
 
-interface SynologyFilter {
-    Version: {
-      major: string
-      minor: string
-    }
-    Common?: {
-      black_char: string
-      black_name: string
-      max_length: string
-      max_path: string
-    }
-    File?: {
-      black_name: string
-      black_prefix: string
-      max_size: string
-    }
-    Directory?: {
-      black_name: string
-    }
-    EA?: {}
+export function parseIgnoreEnv(raw: string): string[] {
+    const forbiddenPattern = /[\/\\:*?"<>|;,]/
+    const trimmed   = raw.trim().replace(/,+$/, '')
+
+    if (trimmed === '') return []
+
+    return trimmed.split(',').map((entry: string, index: number) => {
+        const clean = entry.trim().replace(/\/+$/, '')
+
+        if (clean === '') {
+            console.error(`Error: IGNORE entry at position ${index + 1} is empty after trimming.`)
+            process.exit(1)
+        }
+
+        if (forbiddenPattern.test(clean)) {
+            console.error(`Error: IGNORE entry "${clean}" contains a forbidden character. Forbidden: / \\ : * ? " < > | ; ,`)
+            process.exit(1)
+        }
+
+        return clean
+    })
 }
 
-const args = process.argv.slice(2)
-const ignoreArg = args.find(arg => arg.startsWith('--ignore='))
-const banDirNames = ['node_modules', ...(ignoreArg?.split('=')[1].split(',') ?? [])]
-
-const directory = `${os.homedir()}/Library/Application Support/SynologyDrive/SynologyDrive.app/Contents/Resources/conf`
-const paths = {
-    blacklist: `${directory}/blacklist.filter`,
-    filterV450: `${directory}/filter-v4150`
-}
-
-async function main() {
-    await editConfigFile(paths.blacklist)
-    await editConfigFile(paths.filterV450)
-}
-
-async function editConfigFile(path: string): Promise<void> {
+export async function editConfigFile(path: string): Promise<void> {
 
     console.info(`Editing file : ${path}`)
 
@@ -88,29 +75,33 @@ async function editConfigFile(path: string): Promise<void> {
     }
 
     // We save the file
-    const updatedConfig = ini.stringify(config)
+    const updatedConfig: string = ini.stringify(config) satisfies string
     try {
         await Bun.write(path, updatedConfig)
     } catch (error: unknown) {
-        const fs = await import('fs')
-        fs.writeFileSync(path, updatedConfig)
-        console.info(`🧐 For some reason, Bun.write() fails on your device. We've switched it to fs.writeFileSync() for you! If you see this, the edits have succeeded.`)
+        await fallbackFileWrite(path, updatedConfig)
     }
 
     console.info(`${banDirNames.join(', ')} have been successfully banned from Synology Drive.`)
 }
 
-async function backupFile(file: BunFile): Promise<void> {
+export async function backupFile(file: BunFile): Promise<void> {
     const fileName = file.name?.split('/').at(-1)
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-')
     const backupFileName = `${fileName}.${timestamp}.backup`
     const path = `${process.cwd()}/backups/${backupFileName}`
 
-    await Bun.write(path, file)
+    try {
+        await Bun.write(path, file)
+    } catch (error: unknown) {
+        await fallbackFileWrite(path, await file.text())
+    }
 
     console.info(`File backed-up successfully to ${backupFileName}`)
 }
 
-main()
-    .then(() => console.info('Operation completed successfully.'))
-    .catch(err => console.error('An error occurred:', err))
+export async function fallbackFileWrite(path: string, fileContent: string): Promise<void> {
+    const fs = await import('fs')
+    fs.writeFileSync(path, fileContent)
+    console.info(`🧐 For some reason, Bun.write() fails on your device. We've switched it to fs.writeFileSync() for you! If you see this, the edits have succeeded.`)
+}

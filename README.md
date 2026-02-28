@@ -41,13 +41,42 @@ Then reload your shell (`source ~/.zshrc` or `source ~/.bashrc`) and run `synolo
 
 ## Ignoring additional directories
 
-By default, the script will ignore `node_modules` directory only. If you want to ignore additional directories, you can pass them as a command line argument:
+By default, the script ignores `node_modules` only.
+
+### Persistent block list (recommended)
+
+Create a `.env` file at the root of the project (or copy the provided example):
 
 ```sh
-bun index.ts --ignore=dist,build,customDir
+bun run env:init
 ```
 
-This will always include `node_modules` and also will add `dist`, `build`, and `customDir` to the list of directories to ignore.
+Then edit `.env` to set your list:
+
+```sh
+IGNORE=node_modules,.next,dist,venv
+```
+
+The list is comma-separated. Whitespace around entries and trailing slashes are trimmed automatically. When you build a binary, the `IGNORE` value is embedded into it so it stays effective even when the binary is moved to another location.
+
+### One-time override with `--ignore`
+
+Pass additional directories at runtime with the `--ignore` flag:
+
+```sh
+bun start --ignore=dist,build,customDir
+```
+
+### Priority rules
+
+| `IGNORE=` in `.env` | `--ignore` flag | Directories ignored            |
+|---------------------|-----------------|-------------------------------|
+| not set             | not set         | `node_modules`                |
+| set                 | not set         | the `IGNORE=` list only       |
+| not set             | set             | `node_modules` + CLI list     |
+| both set            | both set        | `node_modules` + both lists   |
+
+> **Note:** when `--ignore` is used, `node_modules` is always included. When only `IGNORE=` is set, only those directories are ignored — add `node_modules` explicitly if needed.
 
 ## Permissions
 You might encounter an error running this script claiming that you are not authorized to edit some files. It's normal, MacOS will restrict access to other apps' files by default. You need to explicitely allow it in System Preferences -> Security & Privacy -> Apps Management -> *\<Your terminal or IDE\>*.
