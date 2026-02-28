@@ -9,7 +9,8 @@
     "build": "bun run src/build.ts && bun run cleanup",
     "build:arm64": "bun run src/build.ts arm64 && bun run cleanup",
     "build:x64": "bun run src/build.ts x64 && bun run cleanup",
-    "cleanup": "rm -f ./.*-*.bun-build"
+    "cleanup": "rm -f ./.*-*.bun-build",
+    "cleanup:backups": "find ./backups -type f ! -name '.gitkeep' -delete"
   },
   "devDependencies": {
     "@types/bun": "latest"
